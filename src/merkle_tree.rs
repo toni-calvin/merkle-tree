@@ -8,12 +8,14 @@ pub struct MerkleTree {
 
 
 impl MerkleTree {
-  pub fn new(elements: &[String]) -> MerkleTree {
+  #[must_use]
+  pub fn new(elements: &[String]) -> Self {
     let leaves = Self::hash_elements(elements);
     let hashes = Self::build_hashes(leaves);
-    MerkleTree{hashes, count: elements.len()}
+    Self{hashes, count: elements.len()}
   }
 
+  #[must_use]
   pub fn root(&self) -> &[u8] {
     &self.hashes[0]
   }
@@ -43,7 +45,7 @@ impl MerkleTree {
       return hashes;
     }
 
-    let h: Vec<Vec<u8>> = hashes.chunks(2).clone().into_iter().map(|e| hash_pair(e[0].clone(), e[1].clone())).collect();
+    let h: Vec<Vec<u8>> = hashes.chunks(2).clone().map(|e| hash_pair(e[0].clone(), e[1].clone())).collect();
     // Each element of the result array is a node in merkle tree
     [Self::build_hashes(h), hashes].concat()
   }
@@ -58,7 +60,7 @@ impl MerkleTree {
             _ => self.hashes[index+i-1].clone()
         };
         proof.append(&mut vec![h]);
-        index = index/2;
+        index /= 2;
         i = (i+1)/2 - 1;
     }
     proof
@@ -72,24 +74,25 @@ impl MerkleTree {
       // depending if left or right leaf 
       // creating parent hash 
       hash = match index.rem(2) {
-        0 => hash_pair(hash, p.to_vec()),
-        _ => hash_pair(p.to_vec(), hash)
+        0 => hash_pair(hash, p.clone()),
+        _ => hash_pair(p.clone(), hash)
       };
       // we go to the left  
-      index = index / 2;
+      index /= 2;
     }
     hash == self.root()
   }
 }
 
 
-
+#[must_use]
 pub fn hash(element: String) -> Vec<u8> {
   let mut hasher = Sha3_256::default();
   hasher.update(element);
   hasher.finalize().to_vec()
 }
 
+#[must_use]
 pub fn hash_pair(e1: Vec<u8>, e2: Vec<u8>) -> Vec<u8> {
   let mut hasher = Sha3_256::default();
   hasher.update([e1, e2].concat());
