@@ -38,7 +38,7 @@ impl MerkleTree {
 
   // This fun creates the hierarchy of hashes and stops on the root hash 
   fn build_hashes(hashes: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
-   
+
     if hashes.len() == 1 {
       return hashes;
     }
